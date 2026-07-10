@@ -2,6 +2,8 @@
 #define SCALARCONVERTER_HPP
 
 #include <iostream>
+#include <string>
+#include <cctype>
 
 # define CHAR 1
 # define INT 2

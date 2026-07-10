@@ -22,5 +22,14 @@ int main (void)
     ScalarConverter::convert("105.");
 
     ScalarConverter::convert("aa");
+
+    // pseudo-literals
+    ScalarConverter::convert("nan");
+    ScalarConverter::convert("nanf");
+    ScalarConverter::convert("+inf");
+    ScalarConverter::convert("-inf");
+    ScalarConverter::convert("+inff");
+    ScalarConverter::convert("-inff");
+
     return (0);
 }

@@ -13,27 +13,11 @@ ScalarConverter &ScalarConverter::operator=(const ScalarConverter &other) {
 
 ScalarConverter::~ScalarConverter() {}
 
-/*
-char    : exactly one character, and that character is NOT a digit
-            e.g. "c", "a", "Z"
-
-int     : optional leading '-', then only digits, no '.'
-            e.g. "42", "-42", "0"
-
-float   : digits + one '.' + digits, ending in 'f'
-          OR one of: "-inff", "+inff", "nanf"
-            e.g. "4.2f", "-4.2f", "0.0f"
-
-double  : digits + one '.' + digits, NO trailing 'f'
-          OR one of: "-inf", "+inf", "nan"
-            e.g. "4.2", "-4.2", "0.0"
-*/
-
 static bool sign_check(const char *str)
 {
-    if (std::isalpha(str[0]))
+    if (std::isdigit(str[0]))
         return (true);
-    else if ((str[0] == '-' || str[0] == '+') && std::isdigit(str[1]))
+    if ((str[0] == '-' || str[0] == '+') && std::isdigit(str[1]))
         return (true);
     return (false);
 }
@@ -44,7 +28,7 @@ static int float_double(const std::string& literal)
     int count = 0;
     const char *str = literal.c_str();
 
-    for(int i = 0; str[i]; i++)
+    for (int i = 0; str[i]; i++)
     {
         if (str[i] == '.')
         {
@@ -56,15 +40,13 @@ static int float_double(const std::string& literal)
         return (INVALID);
 
     int i = 0;
-    // sign check, and skip first digit or sign.
     if (sign_check(str) == true)
         i++;
     else if (sign_check(str) == false)
         return (INVALID);
-    // digits before .
     while (str[i])
     {
-        if (!std::isdigit(str[i] && str[i] != '.'))
+        if (!std::isdigit(str[i]) && str[i] != '.')
             return (INVALID);
         if (str[i] == '.')
             break ;
@@ -72,7 +54,6 @@ static int float_double(const std::string& literal)
     }
     if (str[i] == '.')
         i++;
-    // digits after .
     while (str[i])
     {
         if (!std::isdigit(str[i]) && str[i] != 'f')
@@ -81,7 +62,6 @@ static int float_double(const std::string& literal)
             break ;
         i++;
     }
-    // trailing f or null.
     if (str[i] == 'f' && !str[i + 1])
         return (FLOAT);
     else if (!str[i])
@@ -110,10 +90,6 @@ static int integer(const std::string& literal)
 
 static int invalid_chars(const std::string& literal)
 {
-    if (literal == "-inf" || literal == "-inff"
-        || literal == "+inf" || literal == "+inff"
-        || literal == "nan" || literal == "nanf")
-        return (1);
     int i = 0;
     const char *str = literal.c_str();
     while (str[i])
@@ -128,12 +104,15 @@ static int invalid_chars(const std::string& literal)
 
 static int detection(const std::string& literal)
 {
-    // empty edge case.
     if (literal.empty())
         return (INVALID);
-    // check char.
     if (literal.length() == 1 && std::isalpha(literal.c_str()[0]))
         return (CHAR);
+
+    if (literal == "nanf" || literal == "+inff" || literal == "-inff")
+        return (FLOAT);
+    if (literal == "nan" || literal == "+inf" || literal == "-inf")
+        return (DOUBLE);
 
     if (invalid_chars(literal) == INVALID)
         return (INVALID);
@@ -164,4 +143,69 @@ void ScalarConverter::convert(const std::string& literal){
 }
 
 
+// reminder handle .5f .5 .f double and float. and check edge case ...
 
+/* maybe introduce a boolean
+bool beforeDigit = false;
+
+while (str[i])
+{
+    if (!std::isdigit(str[i]) && str[i] != '.')
+        return (INVALID);
+
+    if (std::isdigit(str[i]))
+        beforeDigit = true;
+
+    if (str[i] == '.')
+        break;
+
+    i++;
+}
+
+if (!beforeDigit)
+    return (INVALID);
+*/
+
+// float_double accepts multiple fs 42.0ff
+
+/*
+
+// fix by std::isprint(literal[0]) && !std::isdigit(literal[0]), is pritable instead of is alpha.
+The subject says
+
+one printable non-digit character
+
+not
+
+alphabetic character.
+
+So these should all be chars:
+
+*
+@
+%
+?
+:
+$
+#
+!
+~
+*/
+
+
+
+
+/*
+
+Instead of
+
+if (literal.length() == 1 && std::isalpha(literal.c_str()[0]))
+
+make it
+
+if (literal.length() == 1
+    && std::isprint(literal[0])
+    && !std::isdigit(literal[0]))
+    return (CHAR);
+
+*/
