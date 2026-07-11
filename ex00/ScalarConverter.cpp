@@ -61,6 +61,12 @@ static int right_left(const char *str, int pos)
             return (RIGHT);
         }
     }
+    else if (pos == (std::strlen(str) - 2))
+    {
+        if (str[pos + 1] == 'f' && str[pos + 2] != '\0')
+            return (0);
+        return (RIGHT);
+    }
     return (0);
 }
 
@@ -106,6 +112,7 @@ static int digitNextToDot(const char *str)
     // check if its right or left, then apply corresponding algo
     int check_place =  right_left(str, dot_pos);
     int valid = 0;
+    
     if (check_place == RIGHT)
     {
         valid = valid_right(str, dot_pos);
@@ -120,6 +127,23 @@ static int digitNextToDot(const char *str)
     }
     return (0);
 }
+
+static int after_f(const char *str)
+{
+    int i = 0;
+
+    while (str[i])
+    {
+        if (str[i] == 'f')
+        {
+            if (str[i + 1] != '\0')
+                return (1);
+        }
+        i++;
+    }
+    return (0);
+}
+
 static int float_double(const std::string& literal)
 {
     bool dot = false;
@@ -140,6 +164,11 @@ static int float_double(const std::string& literal)
 
     if (fcount > 1 || count != 1 || dot == false)
         return (INVALID);
+    if (fcount == 1)
+    {
+        if (after_f(str))
+            return (INVALID);
+    }
 
     int i = 0;
     if (sign_check(str) == true)
@@ -254,8 +283,5 @@ void ScalarConverter::convert(const std::string& literal){
     else
         std::cout << "invalid\n";
 }
-
-
-// reminder handle .5f .5 .f double and float. and check edge case ...
 
 // handle overflow.
