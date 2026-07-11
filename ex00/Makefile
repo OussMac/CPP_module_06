@@ -1,8 +1,8 @@
 CPP = c++ -std=c++98
 FLAGS = -Wall -Werror -Wextra
-NAME = ScalarConvertor
-HEADER = ScalarConvertor.hpp
-SRC = main.cpp ScalarConverter.cpp
+NAME = convert
+HEADER = ScalarConvertor.hpp convert_utils.hpp
+SRC = main.cpp ScalarConverter.cpp convert_utils.cpp
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)

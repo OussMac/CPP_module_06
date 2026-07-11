@@ -1,35 +1,12 @@
 #include "ScalarConverter.hpp"
 
-int main (void)
+int main (int argc, char **argv)
 {
-    ScalarConverter::convert("c");
-    ScalarConverter::convert("Z");
-    ScalarConverter::convert("a");
-    // int
-    ScalarConverter::convert("42");
-    ScalarConverter::convert("-01");
-    ScalarConverter::convert("0000");
-
-    // float
-    ScalarConverter::convert("-4.2f");
-    ScalarConverter::convert("0.0f");
-    ScalarConverter::convert("-42.f");
-
-    // double
-    ScalarConverter::convert("0.0");
-    ScalarConverter::convert("4.2");
-    ScalarConverter::convert("105.500");
-    ScalarConverter::convert("105.");
-
-    ScalarConverter::convert("aa");
-
-    // pseudo-literals
-    ScalarConverter::convert("nan");
-    ScalarConverter::convert("nanf");
-    ScalarConverter::convert("+inf");
-    ScalarConverter::convert("-inf");
-    ScalarConverter::convert("+inff");
-    ScalarConverter::convert("-inff");
-
+    if (argc != 2)
+    {
+        std::cout << "usage ./convert <valid_input>\n";
+        return (1);
+    }
+    ScalarConverter::convert(argv[1]);
     return (0);
 }

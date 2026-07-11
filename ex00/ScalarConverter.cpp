@@ -1,4 +1,5 @@
 #include "ScalarConverter.hpp"
+#include "convert_utils.hpp"
 
 ScalarConverter::ScalarConverter() {}
 
@@ -17,15 +18,113 @@ static bool sign_check(const char *str)
 {
     if (std::isdigit(str[0]))
         return (true);
-    if ((str[0] == '-' || str[0] == '+') && std::isdigit(str[1]))
+    if (str[0] == '.' && std::isdigit(str[1]))
+        return (true);
+    if ((str[0] == '-' || str[0] == '+') && (std::isdigit(str[1]) || str[1] == '.'))
         return (true);
     return (false);
 }
 
+static int dot_position(const char *str)
+{
+    int i = 0;
+    while (str[i])
+    {
+        if (str[i] == '.')
+            return (i);
+        i++;
+    }
+    return (-1); // fallback.
+}
+
+static int right_left(const char *str, int pos)
+{
+    if (pos == 0)
+        return (LEFT);
+    else if (pos == 1)
+    {
+        if ((str[0] == '-' || str[0] == '+'))
+            return (LEFT);
+        else
+        {
+            if (str[pos + 1] == 'f' || str[pos + 1] == '\0')
+                return (RIGHT);
+            return (0);
+        }
+    }
+    else if (pos == (std::strlen(str) - 1))
+    {
+        if (str[pos + 1] == '\0' || str[pos + 1] == 'f')
+        {
+            if (str[pos + 1] == 'f' && str[pos + 2] != '\0')
+                return (0);
+            return (RIGHT);
+        }
+    }
+    return (0);
+}
+
+static int valid_right(const char *str, int pos)
+{
+    pos--;
+    while (pos >= 0)
+    {
+        if (str[pos] != '-' && str[pos] != '+' && !std::isdigit(str[pos]))
+            return (0);
+        pos--;
+    }
+    if (str[pos] && str[pos + 1] == 'f')
+        return (FLOAT);
+    return (DOUBLE);
+}
+
+static int valid_left(const char *str, int pos)
+{
+    bool float_found = false;
+    pos++;
+    if (str[pos] == '\0' || str[pos] == 'f')
+        return (0);
+    while (str[pos])
+    {
+        if (str[pos] != 'f' && !std::isdigit(str[pos]))
+            return (0);
+        if (str[pos] == 'f')
+            float_found = true;
+        pos++;
+    }
+    if (float_found)
+        return (FLOAT);
+    return (DOUBLE);
+}
+
+static int digitNextToDot(const char *str)
+{
+    int dot_pos = dot_position(str);
+    if (dot_pos == -1)
+        return (0);
+
+    // check if its right or left, then apply corresponding algo
+    int check_place =  right_left(str, dot_pos);
+    int valid = 0;
+    if (check_place == RIGHT)
+    {
+        valid = valid_right(str, dot_pos);
+        if (valid)
+            return (valid);
+    }
+    else if (check_place == LEFT)
+    {
+        valid = valid_left(str, dot_pos);
+        if (valid)
+            return (valid);
+    }
+    return (0);
+}
 static int float_double(const std::string& literal)
 {
     bool dot = false;
     int count = 0;
+    int fcount = 0;
     const char *str = literal.c_str();
 
     for (int i = 0; str[i]; i++)
@@ -35,8 +134,11 @@ static int float_double(const std::string& literal)
             count++;
             dot = true;
         }
+        if (str[i] == 'f')
+            fcount++;
     }
-    if (count != 1 || dot == false)
+
+    if (fcount > 1 || count != 1 || dot == false)
         return (INVALID);
 
     int i = 0;
@@ -44,6 +146,11 @@ static int float_double(const std::string& literal)
         i++;
     else if (sign_check(str) == false)
         return (INVALID);
+    
+    int dntd = digitNextToDot(str);
+    if (dntd)
+        return (dntd);
+
     while (str[i])
     {
         if (!std::isdigit(str[i]) && str[i] != '.')
@@ -52,8 +159,13 @@ static int float_double(const std::string& literal)
             break ;
         i++;
     }
+
     if (str[i] == '.')
+    {
         i++;
+        if (str[i] == '\0' || str[i] == 'f')
+            return(INVALID);
+    }
     while (str[i])
     {
         if (!std::isdigit(str[i]) && str[i] != 'f')
@@ -106,7 +218,8 @@ static int detection(const std::string& literal)
 {
     if (literal.empty())
         return (INVALID);
-    if (literal.length() == 1 && std::isalpha(literal.c_str()[0]))
+    if (literal.length() == 1 && std::isprint(literal[0])
+        && !std::isdigit(literal[0]))
         return (CHAR);
 
     if (literal == "nanf" || literal == "+inff" || literal == "-inff")
@@ -131,13 +244,13 @@ static int detection(const std::string& literal)
 void ScalarConverter::convert(const std::string& literal){
     int type = detection(literal);
     if (type == CHAR)
-        std::cout << "char detected\n";
+        convertChar(literal);
     else if (type == INT)
-        std::cout << "int detected\n";
+        convertInt(literal);
     else if (type == FLOAT)
-        std::cout << "float detected\n";
+        convertFloat(literal);
     else if (type == DOUBLE)
-        std::cout << "double detected\n";
+        convertDouble(literal);
     else
         std::cout << "invalid\n";
 }
@@ -145,67 +258,4 @@ void ScalarConverter::convert(const std::string& literal){
 
 // reminder handle .5f .5 .f double and float. and check edge case ...
 
-/* maybe introduce a boolean
-bool beforeDigit = false;
-
-while (str[i])
-{
-    if (!std::isdigit(str[i]) && str[i] != '.')
-        return (INVALID);
-
-    if (std::isdigit(str[i]))
-        beforeDigit = true;
-
-    if (str[i] == '.')
-        break;
-
-    i++;
-}
-
-if (!beforeDigit)
-    return (INVALID);
-*/
-
-// float_double accepts multiple fs 42.0ff
-
-/*
-
-// fix by std::isprint(literal[0]) && !std::isdigit(literal[0]), is pritable instead of is alpha.
-The subject says
-
-one printable non-digit character
-
-not
-
-alphabetic character.
-
-So these should all be chars:
-
-*
-@
-%
-?
-:
-$
-#
-!
-~
-*/
-
-
-
-
-/*
-
-Instead of
-
-if (literal.length() == 1 && std::isalpha(literal.c_str()[0]))
-
-make it
-
-if (literal.length() == 1
-    && std::isprint(literal[0])
-    && !std::isdigit(literal[0]))
-    return (CHAR);
-
-*/
+// handle overflow.

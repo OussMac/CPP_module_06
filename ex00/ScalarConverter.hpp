@@ -4,12 +4,16 @@
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <cstring>
 
 # define CHAR 1
 # define INT 2
 # define FLOAT 3
 # define DOUBLE 4
 # define INVALID -1
+
+# define RIGHT 1
+# define LEFT 2
 
 class ScalarConverter {
     private:
