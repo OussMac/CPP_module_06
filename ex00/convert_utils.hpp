@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cctype>
 
+
 void convertChar(const std::string& literal);
 void convertInt(const std::string& literal);
 void convertFloat(const std::string& literal);

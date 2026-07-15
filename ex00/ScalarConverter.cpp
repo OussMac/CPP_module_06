@@ -1,5 +1,6 @@
 #include "ScalarConverter.hpp"
 #include "convert_utils.hpp"
+#include "preparser.hpp"
 
 ScalarConverter::ScalarConverter() {}
 
@@ -52,7 +53,7 @@ static int right_left(const char *str, int pos)
             return (0);
         }
     }
-    else if (pos == (std::strlen(str) - 1))
+    else if (pos == static_cast<int>(std::strlen(str) - 1))
     {
         if (str[pos + 1] == '\0' || str[pos + 1] == 'f')
         {
@@ -61,7 +62,7 @@ static int right_left(const char *str, int pos)
             return (RIGHT);
         }
     }
-    else if (pos == (std::strlen(str) - 2))
+    else if (pos == static_cast<int>(std::strlen(str) - 2))
     {
         if (str[pos + 1] == 'f' && str[pos + 2] != '\0')
             return (0);
@@ -109,7 +110,6 @@ static int digitNextToDot(const char *str)
     if (dot_pos == -1)
         return (0);
 
-    // check if its right or left, then apply corresponding algo
     int check_place =  right_left(str, dot_pos);
     int valid = 0;
     
@@ -272,6 +272,7 @@ static int detection(const std::string& literal)
 
 void ScalarConverter::convert(const std::string& literal){
     int type = detection(literal);
+    type = preparser_bounds(literal, type); // returns invalid incase of overflow.
     if (type == CHAR)
         convertChar(literal);
     else if (type == INT)

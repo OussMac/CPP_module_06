@@ -37,7 +37,7 @@ void convertChar(const std::string& literal)
 
 void convertInt(const std::string& literal)
 {
-    int value = std::atoi(literal.c_str());
+    int value = static_cast<int>(std::strtol(literal.c_str(), NULL, 10));
 
     if (value < std::numeric_limits<char>::min()
         || value > std::numeric_limits<char>::max())
