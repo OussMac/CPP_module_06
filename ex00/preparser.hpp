@@ -6,4 +6,4 @@
 
 int preparser_bounds(const std::string& literal, int detectedType);
 
-#endif
+#endif // PREPARSER_HPP

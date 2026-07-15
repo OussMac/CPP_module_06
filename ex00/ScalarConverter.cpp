@@ -35,7 +35,7 @@ static int dot_position(const char *str)
             return (i);
         i++;
     }
-    return (-1); // fallback.
+    return (-1);
 }
 
 static int right_left(const char *str, int pos)
@@ -73,6 +73,7 @@ static int right_left(const char *str, int pos)
 
 static int valid_right(const char *str, int pos)
 {
+    int suffix_pos = pos + 1;
     pos--;
     while (pos >= 0)
     {
@@ -80,7 +81,7 @@ static int valid_right(const char *str, int pos)
             return (0);
         pos--;
     }
-    if (str[pos] && str[pos + 1] == 'f')
+    if (str[suffix_pos] == 'f')
         return (FLOAT);
     return (DOUBLE);
 }
@@ -272,7 +273,7 @@ static int detection(const std::string& literal)
 
 void ScalarConverter::convert(const std::string& literal){
     int type = detection(literal);
-    type = preparser_bounds(literal, type); // returns invalid incase of overflow.
+    type = preparser_bounds(literal, type);
     if (type == CHAR)
         convertChar(literal);
     else if (type == INT)
@@ -284,5 +285,3 @@ void ScalarConverter::convert(const std::string& literal){
     else
         std::cout << "invalid\n";
 }
-
-// handle overflow.
