@@ -2,11 +2,11 @@
 #define CONVERT_UTILS_HPP
 
 #include <iostream>
-#include <iomanip>
-#include <cstdlib>
-#include <limits>
-#include <cmath>
-#include <cctype>
+#include <iomanip> // fixed, precesion
+#include <cstdlib> // strtoX
+#include <limits> // limits
+#include <cmath> // isnan,isinf
+#include <cctype> // isdigit, isprint
 
 
 void convertChar(const std::string& literal);

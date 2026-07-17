@@ -1,5 +1,5 @@
-CPP = c++ -std=c++98
-FLAGS = -Wall -Werror -Wextra
+CPP = c++
+FLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = convert
 HEADER = ScalarConverter.hpp convert_utils.hpp preparser.hpp
 SRC = main.cpp ScalarConverter.cpp convert_utils.cpp preparser.cpp

@@ -14,7 +14,6 @@ static int checkIntBounds(const std::string& literal)
     }
     while (number.length() > 1 && number[0] == '0')
         number.erase(0, 1);
-
     if (!negative)
     {
         const std::string max = "2147483647";

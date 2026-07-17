@@ -1,5 +1,5 @@
-CPP = c++ -std=c++98
-FLAGS = -Wall -Werror -Wextra
+CPP = c++
+FLAGS = -Wall -Werror -Wextra -std=c++98
 NAME = identify
 HEADER = Base.hpp A.hpp B.hpp C.hpp
 SRC = main.cpp Base.cpp A.cpp B.cpp C.cpp

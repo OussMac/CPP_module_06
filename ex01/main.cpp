@@ -4,7 +4,7 @@ int main(void)
 {
     Data data;
     data.id = 42;
-    data.name = "John Doe";
+    data.name = "OussMac";
     data.score = 95.5;
 
     std::cout << "Original Data:\n";
