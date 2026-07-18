@@ -6,13 +6,19 @@
 Base::~Base() {}
 
 Base* generate() {
-    int randomValue = rand() % 3;
-    if (randomValue == 0)
-        return new A();
-    else if (randomValue == 1)
-        return new B();
-    else
-        return new C();
+    int randomValue = std::rand() % 3;
+    try {
+        if (randomValue == 0)
+            return new A();
+        else if (randomValue == 1)
+            return new B();
+        else
+            return new C();
+    }
+    catch (const std::bad_alloc& e) {
+        std::cout << "Memory allocation failed: " << e.what() << std::endl;
+        return NULL;
+    }
 }
 
 void identify(Base* p) {
